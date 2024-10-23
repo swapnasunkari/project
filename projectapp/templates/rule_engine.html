@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Rule Engine</h1>
+<form id="createRuleForm">
+    <label for="rule_string">Enter Rule:</label>
+    <textarea id="rule_string" name="rule_string" required></textarea>
+    <button type="submit">Create Rule</button>
+</form>
+
+<h2>Evaluate Rule</h2>
+<form id="evaluateRuleForm">
+    <label for="ast">AST:</label>
+    <textarea id="ast" name="ast" required></textarea>
+    <label for="data">Data (JSON):</label>
+    <textarea id="data" name="data" required></textarea>
+    <button type="submit">Evaluate Rule</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+document.getElementById("createRuleForm").onsubmit = async function(e) {
+    e.preventDefault();
+    const ruleString = document.getElementById("rule_string").value;
+    const response = await fetch("/api/create_rule/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rule_string: ruleString }),
+    });
+    const data = await response.json();
+    alert(data.message);
+};
+
+document.getElementById("evaluateRuleForm").onsubmit = async function(e) {
+    e.preventDefault();
+    const ast = document.getElementById("ast").value;
+    const data = document.getElementById("data").value;
+    const response = await fetch("/api/evaluate_rule/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ast: JSON.parse(ast), data: JSON.parse(data) }),
+    });
+    const result = await response.json();
+    document.getElementById("result").innerText = "Evaluation Result: " + result.result;
+};
+</script>
+{% endblock %}
